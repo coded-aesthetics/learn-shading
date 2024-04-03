@@ -47,8 +47,7 @@ float sdfSphere(vec3 p, vec3 c, float r) {
   return length(p - c) - r;
 }
 
-vec3 opTwist( in vec3 p ) {
-    const float k = -13.0; // or some other amount
+vec3 opTwist( in vec3 p , float k) {
     float c = cos(k*p.y);
     float s = sin(k*p.y);
     mat2  m = mat2(c,-s,s,c);
@@ -65,8 +64,8 @@ float map(vec3 p) {
 
   float dis = displace(p, sin(u_time/2.0) * 10.0);
 
-  vec3 normal = vec3(0.0, 1.0, 0.0);
-  float sphere = sdfSphere(opTwist(p), center, radius);
+  vec3 normal = vec3(0.5333, 0.1137, 0.1137);
+  float sphere = sdfSphere(opTwist(opTwist(p, cos(u_time/24.0) * 300.0).yxz, sin(u_time/120.0) * 2300.0), center, radius);
   float m = sphere + dis;
 
 
@@ -79,6 +78,8 @@ float map(vec3 p) {
 
   return m;
 }
+
+
 
 float rayMarch(vec3 ro, vec3 rd, float maxDistToTravel) {
   float dist = 0.0;
@@ -132,8 +133,9 @@ vec3 render(vec2 uv) {
     // part 2.2 - add lighting
 
     // part 2.2.1 - calculate diffuse lighting
-    vec3 lightColor = vec3(1.0);
-    vec3 lightSource = vec3(2.5, 2.5, -1.0);
+    vec3 lightColor = vec3(0.85, 0.0, 1.0);
+    vec3 lightSource = vec3(sin(u_time / 10.0) * 2.5 + 2.5, sin(u_time / 7.0) * 2.5,-1.0 + sin(u_time) * -1.0);
+    //lightSource = vec3(2.5, 2.5,-1.0);
     float diffuseStrength = max(0.0, dot(normalize(lightSource), normal));
     vec3 diffuse = lightColor * diffuseStrength;
 
@@ -159,7 +161,7 @@ vec3 render(vec2 uv) {
     // part 3.2 - ray march based on new ro + rd
     float dist = rayMarch(ro, rd, distToLightSource);
     if (dist < distToLightSource) {
-      color = color * vec3(0.25);
+      color = color * vec3(0.0431, 0.7804, 0.498);
     }
 
     // note: add gamma correction
