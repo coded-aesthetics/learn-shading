@@ -16,7 +16,7 @@ void main() {
 
   vec2 gridUv = fract(uv);
   vec2 gridId = floor(uv);
-  color = vec3(smoothstep(0.1 + abs(uv.y), sin(u_time*2.0)-0.1+abs(uv.x), abs(uv.x)));
+  color = vec3(smoothstep(.1, -.1, pow(abs(uv.x*uv.y), sin(u_time)+1.0)));
 
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = vec4(color, 1.);
 }
