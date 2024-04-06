@@ -12,13 +12,13 @@ float sdfPlane(vec3 normal, float dist_from_origin, vec3 p) {
 }
 
 float opSmoothUnion(float d1, float d2, float k) {
-    float h = clamp(0.5 + 0.5 * (d2 - d1) / k, 0.0, 1.0);
-    return mix(d2, d1, h) - k * h * (1.0 - h);
+    float h = clamp(0.5 + 0.5 * (d1 - d2) / k, 0.0, 1.0);
+    return mix(d1, d1+sin(u_time)*1.2, h) - k * h * (1.0 - h);
 }
 
 float map(vec3 p) {
     float ds = sdfSphere(vec3(0.0), 0.7, p);
-    float dp = sdfPlane(vec3(cos(u_time)*-3.0, sin(u_time)*-20.0-20.0, 4.0), 1.0, p);
+    float dp = sdfPlane(vec3(cos(u_time)*-3.0, sin(u_time)*-20.0-30.0, 4.0), 1.0, p);
     return opSmoothUnion(ds, dp, 2.0);
 }
 
