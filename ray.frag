@@ -7,8 +7,19 @@ float sdfSphere(vec3 c, float r, vec3 p) {
     return length(p - c) - r;
 }
 
+float sdfPlane(vec3 normal, float dist_from_origin, vec3 p) {
+    return dot(normal, p) + dist_from_origin;
+}
+
+float opSmoothUnion(float d1, float d2, float k) {
+    float h = clamp(0.5 + 0.5 * (d2 - d1) / k, 0.0, 1.0);
+    return mix(d2, d1, h) - k * h * (1.0 - h);
+}
+
 float map(vec3 p) {
-    return sdfSphere(vec3(0.0), 0.7, p);
+    float ds = sdfSphere(vec3(0.0), 0.7, p);
+    float dp = sdfPlane(vec3(cos(u_time)*-3.0, sin(u_time)*-20.0-20.0, 4.0), 1.0, p);
+    return opSmoothUnion(ds, dp, 2.0);
 }
 
 const int MAX_ITERATIONS = 64;
@@ -46,10 +57,10 @@ float diffuseLighting(vec3 relativeLightSourcePos, vec3 normal) {
     return diffuseStrength;
 }
 
-float specularLighting(vec3 relativeLightSourcePos, vec3 normal, vec3 viewDir) {
-    vec3 r = reflect(relativeLightSourcePos, normal);
-    float specularStrength = max(dot(r, viewDir), 0.0);
-    return pow(specularStrength, 32.0);
+float specularLighting(vec3 lightDir, vec3 normal, vec3 viewDir) {
+    vec3 reflection = reflect(normalize(lightDir), normal);
+    float specStrength = max(dot(normalize(viewDir), reflection), 0.0);
+    return pow(specStrength, 32.0);
 }
 
 vec3 render(vec2 uv) {
@@ -68,14 +79,13 @@ vec3 render(vec2 uv) {
 
     float diffuseStrength = diffuseLighting(relativeLightSourcePos, normal);
 
-    float specularStrength = specularLighting(relativeLightSourcePos, normal, ray_dir);
+    float specStrength = specularLighting(-relativeLightSourcePos, normal, cameraCenter);
 
     if (dist > MAX_TRAVEL_DIST) {
-      return vec3(0.0);
+      return vec3(1.0);
     } else {
-      return ambientColor * 0.75 * diffuseStrength + 0.25 * specularStrength;
+      return ambientColor * (1.0 - (0.75 * diffuseStrength + 0.25 * specStrength));
     }
-
 }
 
 void main() {

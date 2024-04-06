@@ -15,7 +15,14 @@ const float MIN_DIST_TO_SDF = 0.001;
 const float MAX_DIST_TO_TRAVEL = 64.0;
 
 float opSmoothUnion(float d1, float d2, float k) {
+  // this next term will be between 0.0 and 1.0
+  // if the distance between d1 and d2 is less than k
+  // so increasing k will blend the shapes together earlier
   float h = clamp(0.5 + 0.5 * (d2 - d1) / k, 0.0, 1.0);
+  // h is a value between 0.0 and 1.0
+  // if h is 1.0 nothing is subtracted from the term below
+  // if h is 0.0 nothing is subtracted as well
+  // if h is between 0.0 and 1.0 we get the linear interpolation between d2 and d1
   return mix(d2, d1, h) - k * h * (1.0 - h);
 }
 
