@@ -123,7 +123,7 @@ vec3 render(vec2 uv) {
 
   // note: ro -> ray origin, rd -> ray direction
   vec3 ro = vec3(0.0, 0., -2.0);
-  vec3 rd = vec3(uv, 1.0);
+  vec3 rd = vec3(uv * sin(u_time)*3.0, 1.0);
 
   float dist = rayMarch(ro, rd, MAX_DIST_TO_TRAVEL);
 
@@ -181,7 +181,7 @@ vec3 render(vec2 uv) {
 void main() {
   vec2 uv = 2.0 * gl_FragCoord.xy / u_resolution - 1.0;
   // note: properly center the shader in full screen mode
-  // uv = (2.0 * gl_FragCoord.xy - u_resolution) / u_resolution.y;
+  uv = (2.0 * gl_FragCoord.xy - u_resolution) / u_resolution.y;
   vec3 color = vec3(0.0);
   color = render(uv);
   // color = vec3(uv, 0.0);
