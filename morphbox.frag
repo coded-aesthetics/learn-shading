@@ -96,9 +96,9 @@ float map(vec3 p) {
 
   float sphere = sdBox(rotate_vertex_position(p, vec3(1.0, 1.0, 0.0), u_time)-vec3(1.0), vec3(1.2, 1.7, 1.3));
   float m = sphere;
-  float box = sdBox(rotate_vertex_position(p, vec3(0.0, 1.0, 1.0), u_time)-vec3(1.0), vec3(1.2, 1.7, 1.3));
-  float box2 = sdBox(rotate_vertex_position(p, vec3(1.0, 1.0, 1.0), u_time)-vec3(1.0), vec3(.7, 1.1, 0.8));
-  float box3 = sdBox(rotate_vertex_position(p, vec3(0.7, -1.2, .2), u_time)-vec3(1.0), vec3(0.5, 1.2, 0.9));
+  float box = sdBox(rotate_vertex_position(p, vec3(0.0, 1.0, 1.0), u_time/1.5)-vec3(1.0), vec3(1.2, 1.7, 1.3));
+  float box2 = sdBox(rotate_vertex_position(p, vec3(1.0, 1.0, 1.0), u_time/1.7)-vec3(1.0), vec3(.7, 1.1, 0.8));
+  float box3 = sdBox(rotate_vertex_position(p, vec3(0.7, -1.2, .2), u_time/1.3)-vec3(1.0), vec3(0.5, 1.2, 0.9));
 
   // part 1.2 - display plane
   float h = 1.0;
@@ -149,9 +149,10 @@ vec3 getNormal(vec3 p) {
 vec3 render(vec2 uv) {
   vec3 color = vec3(0.0);
 
+  vec3 rot_axis = vec3(0., 1., 0.);
   // note: ro -> ray origin, rd -> ray direction
-  vec3 ro = vec3(0.0, 1.0, -5.0);
-  vec3 rd = vec3(uv, 1.0);
+  vec3 ro = rotate_vertex_position(vec3(0.0, 1.0, -5.0), rot_axis, u_time/3.0);
+  vec3 rd = rotate_vertex_position(vec3(uv, 1.0), rot_axis, u_time/3.0);
 
   float dist = rayMarch(ro, rd, MAX_DIST_TO_TRAVEL);
 
