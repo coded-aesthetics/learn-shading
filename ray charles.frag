@@ -9,13 +9,13 @@ float sdfSphere(vec3 c, float r, vec3 p) {
 
 float sdfPlane(vec3 normal, float dist_from_origin, vec3 p) {
     float n = (dist_from_origin) * length(p) / dot(normal, p);
-    vec3 point_on_plane = p * n;
-    vec3 perp1 = normalize(vec3(-normal.y, normal.x, 0.0));
+    vec3 point_on_plane = normalize(p) * n;
+    vec3 perp1 = normalize(vec3(normal.z, 0.0, -normal.y));
     vec3 perp2 = normalize(perp1 * normal);
-    vec3 origin = normal * dist_from_origin;
-    float x = dot(point_on_plane,origin + perp1);
-    float y = dot(point_on_plane,origin + perp1);
-    return dot(normal, p) + dist_from_origin * sin(y);
+    vec3 origin = normal * (dist_from_origin);
+    float x = dot(point_on_plane - origin, perp1);
+    float y = dot(point_on_plane - origin, perp2);
+    return dot(normal, p + normal*sin(u_time)*3.0*sin(length(p.xz+vec2(-40.0,-100.0))/(sin(u_time/1.0)*5.0+7.0))) + dist_from_origin;
 }
 
 float opSmoothUnion(float d1, float d2, float k) {
@@ -28,16 +28,16 @@ float map(vec3 p) {
   vec3 center = vec3(0.0);
 
   // part 4 - change height of the sphere based on time
-  center = vec3(0.0, -0.25 + sin(u_time) * 0.5, 0.0);
+  center = vec3(0.0, -0.25 + sin(u_time) * 0.5, .0);
 
   float sphere = sdfSphere(center, radius, p);
   float m = sphere;
 
   // part 1.2 - display plane
   float h = 1.0;
-  vec3 normal = vec3(cos(u_time/3.)*2.0, sin(u_time)*1.0+1.5, 0.0);
+  vec3 normal = vec3(.0, 1.0, .0);
   float plane = sdfPlane(normal, h, p);
-  m = min(sphere, plane);
+  m = min(plane, plane);
 
   // part 4 - add smooth blending
   //m = opSmoothUnion(sphere, plane, 0.5);
@@ -46,7 +46,7 @@ float map(vec3 p) {
 }
 const int MAX_ITERATIONS = 64;
 const float MIN_DISTANCE_TO_OBJ = 0.01;
-const float MAX_TRAVEL_DIST = 128.0;
+const float MAX_TRAVEL_DIST = 228.0;
 
 float ray_march(vec3 p, vec3 ray_direction, float maxTravelDist) {
     float travelledDist = 0.0;
@@ -94,10 +94,10 @@ bool shadow(vec3 relativeLightSourcePos, vec3 pointOnObj) {
 vec3 render(vec2 uv) {
     vec3 ambientColor = vec3(1.0);
 
-    vec3 relativeLightSourcePos = vec3(30.0, 60.0, 30.0);
+    vec3 relativeLightSourcePos = vec3(4.0, 60.0, 3.0);
 
-    vec3 cameraCenter = vec3(0.0, 0.0, -2.0);
-    vec3 current_point_on_camera_plane = cameraCenter + vec3(uv, 1.0);
+    vec3 cameraCenter = vec3(.0, 30.0, -3.0);
+    vec3 current_point_on_camera_plane = cameraCenter + vec3(uv, 2.0);
 
     // vec3 cameraCenter = vec3(-0.0, -6.0, 0.0);
     // vec3 current_point_on_camera_plane = vec3(uv.x, -5.0, uv.y);
@@ -117,7 +117,7 @@ vec3 render(vec2 uv) {
     vec3 shadowColor = vec3(0.08, 0.21, 0.81);
     bool shad = shadow(relativeLightSourcePos, cameraCenter + ray_dir * dist + normal * 0.1);
     if (shad) {
-        color = color * shadowColor;
+        //color = color * shadowColor;
     }
 
     if (dist > MAX_TRAVEL_DIST) {
