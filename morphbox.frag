@@ -40,9 +40,15 @@ vec4 quaternion_from_axis_angle(vec3 axis, float angle) {
 
 vec4 mult_quaternions(vec4 q1, vec4 q2) {
   vec4 q;
+  vec3 v1 = q1.xyz;
+  vec3 v2 = q2.xyz;
+  return vec4(
+    cross(v1, v2) + v1 * q2.w + v2 * q1.w,
+    q1.w * q2.w - dot(v1, v2)
+  );
   q.x = (q1.w * q2.x) + (q1.x * q2.w) + (q1.y * q2.z) - (q1.z * q2.y);
-  q.y = (q1.w * q2.y) - (q1.x * q2.z) + (q1.y * q2.w) + (q1.z * q2.x);
-  q.z = (q1.w * q2.z) + (q1.x * q2.y) - (q1.y * q2.x) + (q1.z * q2.w);
+  q.y = (q1.w * q2.y) + (q1.y * q2.w) + (q1.z * q2.x) - (q1.x * q2.z);
+  q.z = (q1.w * q2.z) + (q1.z * q2.w) + (q1.x * q2.y) - (q1.y * q2.x);
   q.w = (q1.w * q2.w) - (q1.x * q2.x) - (q1.y * q2.y) - (q1.z * q2.z);
   return q;
 }
@@ -70,6 +76,11 @@ float sdTorus( vec3 p, vec2 t )
   return length(q)-t.y;
 }
 
+float specular(vec3 absLightSourcePos, vec3 viewDir, vec3 normal) {
+  vec3 ref = reflect(-normalize(absLightSourcePos), normal);
+  float specStrength = max(dot(normalize(viewDir), ref), 0.0);
+  return pow(specStrength, 32.0);
+}
 
 float sdBox( vec3 p, vec3 b )
 {
@@ -87,6 +98,22 @@ float rand() {
   return fract(sin(dot(vec2(u_time, gl_FragCoord.xy), vec2(12.9898, 78.233)) * 256.0));
 }
 
+
+float displacement(vec3 p) {
+  return sin(50.*p.x)*sin(50.2*p.y)*sin(.8*p.z)*.002;
+}
+
+vec3 opTwist(vec3 p )
+{
+    float k = 2.0; // or some other amount
+    float c = cos(k*p.y);
+    float s = sin(k*p.y);
+    mat2  m = mat2(c,-s,s,c);
+    vec3  q = vec3(m*p.xz,p.y);
+    return q;
+}
+
+
 float map(vec3 p) {
   float radius = 0.75;
   vec3 center = vec3(0.0);
@@ -94,11 +121,13 @@ float map(vec3 p) {
   // part 4 - change height of the sphere based on time
   center = vec3(0.25 + sin(u_time/7.0) * 0.5, 0.25 + sin(u_time) * 0.5, -4.0);
 
-  float sphere = sdBox(rotate_vertex_position(p, vec3(1.0, 1.0, 0.0), u_time)-vec3(1.0), vec3(1.2, 1.7, 1.3));
+  vec3 twistedP = p; //opTwist(p);
+
+  float sphere = sdBox(rotate_vertex_position(twistedP, vec3(1.0, 1.0, 0.0), u_time)-vec3(1.0), vec3(1.2, 1.7, 1.3));
   float m = sphere;
-  float box = sdBox(rotate_vertex_position(p, vec3(0.0, 1.0, 1.0), u_time/1.5)-vec3(1.0), vec3(1.2, 1.7, 1.3));
-  float box2 = sdBox(rotate_vertex_position(p, vec3(1.0, 1.0, 1.0), u_time/1.7)-vec3(1.0), vec3(.7, 1.1, 0.8));
-  float box3 = sdBox(rotate_vertex_position(p, vec3(0.7, -1.2, .2), u_time/1.3)-vec3(1.0), vec3(0.5, 1.2, 0.9));
+  float box = sdBox(rotate_vertex_position(twistedP, vec3(0.0, 1.0, 1.0), u_time/1.5)-vec3(1.0), vec3(1.2, 1.7, 1.3));
+  float box2 = sdBox(rotate_vertex_position(twistedP, vec3(1.0, 1.0, 1.0), u_time/1.7)-vec3(1.0), vec3(.7, 1.1, 0.8));
+  float box3 = sdBox(rotate_vertex_position(twistedP, vec3(0.7, -1.2, .2), u_time/1.3)-vec3(1.0), vec3(0.5, 1.2, 0.9));
 
   // part 1.2 - display plane
   float h = 1.0;
@@ -106,14 +135,15 @@ float map(vec3 p) {
   float plane = sdfPlane(p, normal, h);
 
   // part 4 - add smooth blending
-  m = opSmoothUnion(sphere, plane, 1.5);
   m = opSmoothUnion(m, box, 1.5);
   m = opSmoothUnion(m, box2, 1.5);
+  m = m + displacement(p);
   m = opSmoothUnion(m, box3, 1.5);
+  m = opSmoothUnion(m, plane, 1.5);
+
 
   return m;
 }
-
 
 
 float rayMarch(vec3 ro, vec3 rd, float maxDistToTravel) {

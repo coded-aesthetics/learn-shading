@@ -10,12 +10,12 @@ float sdfSphere(vec3 c, float r, vec3 p) {
 float sdfPlane(vec3 normal, float dist_from_origin, vec3 p) {
     float n = (dist_from_origin) * length(p) / dot(normal, p);
     vec3 point_on_plane = normalize(p) * n;
-    vec3 perp1 = normalize(vec3(normal.z, 0.0, -normal.y));
+    vec3 perp1 = normalize(vec3(normal.y, -normal.x, 0.0));
     vec3 perp2 = normalize(perp1 * normal);
     vec3 origin = normal * (dist_from_origin);
     float x = dot(point_on_plane - origin, perp1);
     float y = dot(point_on_plane - origin, perp2);
-    return dot(normal, p + normal*sin(u_time)*3.0*sin(length(p.xz+vec2(-40.0,-100.0))/(sin(u_time/1.0)*5.0+7.0))) + dist_from_origin;
+    return dot(normal, p + normal*sin(x)/2.0) + dist_from_origin;
 }
 
 float opSmoothUnion(float d1, float d2, float k) {
