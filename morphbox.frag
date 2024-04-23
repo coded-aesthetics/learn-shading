@@ -100,7 +100,7 @@ float rand() {
 
 
 float displacement(vec3 p) {
-  return sin(50.*p.x)*sin(50.2*p.y)*sin(.8*p.z)*.002;
+  return sin(50.*p.x*p.y)*sin(50.2*p.y*p.z)*sin(25.0*p.z*p.x)*.05*sin(u_time);
 }
 
 vec3 opTwist(vec3 p )
