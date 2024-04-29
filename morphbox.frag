@@ -24,9 +24,6 @@ float sdfPlane(vec3 p, vec3 n, float h) {
   return dot(p, n) + h;
 }
 
-float sdfSphere(vec3 p, vec3 c, float r) {
-  return length(p - c) - r;
-}
 
 vec4 quaternion_from_axis_angle(vec3 axis, float angle) {
   vec4 qr;
@@ -68,6 +65,10 @@ vec3 rotate_vertex_position(vec3 position, vec3 axis, float angle)
   qr = mult_quaternions(q_tmp, qr_conj);
 
   return vec3(qr.x, qr.y, qr.z);
+}
+
+float sdfSphere(vec3 p, vec3 c, float r) {
+  return length(p - c) - r;
 }
 
 float sdTorus( vec3 p, vec2 t )
@@ -113,6 +114,15 @@ vec3 opTwist(vec3 p )
     return q;
 }
 
+float sdBoxFrame( vec3 p, vec3 b, float e )
+{
+       p = abs(p  )-b;
+  vec3 q = abs(p+e)-e;
+  return min(min(
+      length(max(vec3(p.x,q.y,q.z),0.0))+min(max(p.x,max(q.y,q.z)),0.0),
+      length(max(vec3(q.x,p.y,q.z),0.0))+min(max(q.x,max(p.y,q.z)),0.0)),
+      length(max(vec3(q.x,q.y,p.z),0.0))+min(max(q.x,max(q.y,p.z)),0.0));
+}
 
 float map(vec3 p) {
   float radius = 0.75;
@@ -129,10 +139,22 @@ float map(vec3 p) {
   float box2 = sdBox(rotate_vertex_position(twistedP, vec3(1.0, 1.0, 1.0), u_time/1.7)-vec3(1.0), vec3(.7, 1.1, 0.8));
   float box3 = sdBox(rotate_vertex_position(twistedP, vec3(0.7, -1.2, .2), u_time/1.3)-vec3(1.0), vec3(0.5, 1.2, 0.9));
 
+
+  float frame = sdBoxFrame(rotate_vertex_position(twistedP, vec3(1.0, 1.0, 0.0), u_time)-vec3(1.0), vec3(1.2, 1.7, 1.3), 0.2);
+return frame;
   // part 1.2 - display plane
   float h = 1.0;
   vec3 normal = vec3(0.0, 1.0, 0.0);
   float plane = sdfPlane(p, normal, h);
+
+  //return opSmoothUnion(frame, plane, .0);
+  vec3 rotP = rotate_vertex_position(twistedP-vec3(2.0, 2.0, -5.0), vec3(1.0, 1.0, 1.0), u_time/1.7);
+
+  float torus = sdTorus(rotP, vec2(10.0, 8.5));
+
+  //return torus+displacement(p);
+  //m = min(m, torus);
+
 
   // part 4 - add smooth blending
   m = opSmoothUnion(m, box, 1.5);
@@ -157,8 +179,9 @@ float rayMarch(vec3 ro, vec3 rd, float maxDistToTravel) {
       break;
     }
 
+if (distToSdf > 0.0) {
     dist = dist + distToSdf;
-
+}
     if (dist > maxDistToTravel) {
       break;
     }
@@ -226,7 +249,7 @@ vec3 render(vec2 uv) {
     // part 3.2 - ray march based on new ro + rd
     float dist = rayMarch(ro, rd, distToLightSource);
     if (dist < distToLightSource) {
-      //color = color * vec3(0.0667, 0.0, 1.0);
+      color = color * vec3(1.0, 0.0, 0.7843);
     }
 
     // note: add gamma correction
