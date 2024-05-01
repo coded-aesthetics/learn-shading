@@ -7,8 +7,8 @@ float sdSphere(vec3 p, vec3 center, float radius) {
     return length(p - center) - radius;
 }
 
-const float MAX_TRAVEL_DIST = 32.0;
-const float MAX_ITERATIONS = 16.0;
+const float MAX_TRAVEL_DIST = 24.0;
+const float MAX_ITERATIONS = 48.0;
 const float MIN_DIST_TO_OBJ = 0.1;
 
 float sdBoxFrame( vec3 p, vec3 b, float e )
@@ -157,6 +157,20 @@ float map(vec3 p) {
     vec3 cur_pos = rotate_vertex_position(initial_pos,rot_axis, cur_angle) + sin(u_time +  cur_angle) * vec3(0.0, 1.0, 0.0);
     //m = min(m, sdBox(p-cur_pos, vec3(1.5, 1.9, 1.15)));
     m = opSmoothUnion(m, sdSphere(p, cur_pos, 2.), 3.5);
+  }
+  // END STONEHENGE
+
+  // BEGIN STONEHENGE
+  const int num_walls = 9;
+
+  // first henge position
+  vec3 initial_pos_2 = vec3(8., 1., 8.);
+
+  for (int i = 0; i < num_walls; i++) {
+    float cur_angle = 2.0 * PI * float(i) / float(num_walls);
+    vec3 cur_pos = rotate_vertex_position(initial_pos_2,rot_axis, cur_angle) + sin(u_time +  cur_angle) * vec3(0.0, 1.0, 0.0);
+    //m = min(m, sdBox(p-cur_pos, vec3(1.5, 1.9, 1.15)));
+    m = min(m, sdBox(p - cur_pos, vec3(1., 3., 1.)));
   }
   // END STONEHENGE
 
