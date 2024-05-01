@@ -70,7 +70,6 @@ vec3 rotate_vertex_position(vec3 position, vec3 axis, float angle)
 float sdfSphere(vec3 p, vec3 c, float r) {
   return length(p - c) - r;
 }
-
 float sdTorus( vec3 p, vec2 t )
 {
   vec2 q = vec2(length(p.xz)-t.x,p.y);
@@ -141,7 +140,7 @@ float map(vec3 p) {
 
 
   float frame = sdBoxFrame(rotate_vertex_position(twistedP, vec3(1.0, 1.0, 0.0), u_time)-vec3(1.0), vec3(1.2, 1.7, 1.3), 0.2);
-return frame;
+//return frame;
   // part 1.2 - display plane
   float h = 1.0;
   vec3 normal = vec3(0.0, 1.0, 0.0);
@@ -179,9 +178,8 @@ float rayMarch(vec3 ro, vec3 rd, float maxDistToTravel) {
       break;
     }
 
-if (distToSdf > 0.0) {
     dist = dist + distToSdf;
-}
+
     if (dist > maxDistToTravel) {
       break;
     }
