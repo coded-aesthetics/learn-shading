@@ -147,17 +147,19 @@ float map(vec3 p) {
 
   vec3 rot_axis = vec3(0., 1., 0.);
   // BEGIN STONEHENGE
-  /*const int num_henges = 7;
+  const int num_henges = 7;
 
   // first henge position
   vec3 initial_pos = vec3(6., 1., 6.);
 
   for (int i = 0; i < num_henges; i++) {
     float cur_angle = 2.0 * PI * float(i) / float(num_henges);
-    vec3 cur_pos = rotate_vertex_position(initial_pos,rot_axis, cur_angle) + sin(u_time +  cur_angle) * vec3(0.0, 1.0, 0.0);
+    vec3 cur_pos = rotate_vertex_position(initial_pos,rot_axis, cur_angle) + sin(u_time +  cur_angle) * vec3(0.0, 4.0, 0.0);
     //m = min(m, sdBox(p-cur_pos, vec3(1.5, 1.9, 1.15)));
-    m = opSmoothUnion(m, sdSphere(p, cur_pos, 2.), 3.5);
-  }*/
+    vec3 hum = vec3(0.0, 0.0, 1.0);
+    hum = rotate_vertex_position(hum, rot_axis, cur_angle);
+    m = opSmoothUnion(m, sdSphere(p + hum*6.0, cur_pos, 2.), 3.5);
+  }
   // END STONEHENGE
 
   // BEGIN STONEHENGE
@@ -227,10 +229,10 @@ float specular(vec3 rel_light_source_pos, vec3 rel_camera_pos, vec3 normal) {
 void main() {
     vec2 uv = (2.0 * gl_FragCoord.xy - u_resolution) / u_resolution.x;
 vec3 rot_axis = vec3(0., 1., 0.);
-    vec3 camera_center = vec3(0.0, 0.0, -4.0);
-    camera_center = rotate_vertex_position(camera_center, rot_axis, u_time/2.0);
-    vec3 cur_point_on_cam_plane = vec3(uv, -3.0);
-    cur_point_on_cam_plane = rotate_vertex_position(cur_point_on_cam_plane, rot_axis, u_time/2.0);
+    vec3 camera_center = vec3(0.0, 12.0, 0.0);
+    //camera_center = rotate_vertex_position(camera_center, rot_axis, u_time/2.0);
+    vec3 cur_point_on_cam_plane = vec3(uv.x, 10.0, uv.y);
+    //cur_point_on_cam_plane = rotate_vertex_position(cur_point_on_cam_plane, rot_axis, u_time/2.0);
     vec3 rd = normalize(cur_point_on_cam_plane - camera_center);
 
 
