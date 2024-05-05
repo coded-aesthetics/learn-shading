@@ -113,8 +113,7 @@ float sdBox( vec3 p, vec3 b )
   return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
 }
 
-const float PI = 3.14159265359; // or any other approximation of your choice
-
+const float PI = 2.0 * acos(0.0);
 
 float map(vec3 p) {
   vec3 center = vec3(0.0);
@@ -243,8 +242,8 @@ vec3 rot_axis = vec3(0., 1., 0.);
 
 
     vec3 obj_col = vec3(1.0, 1.0, 1.0);
-    vec3 background_col_2 = vec3(1.0, 1.0, 1.0);
-    vec3 background_col_3 = vec3(1.0, 1.0, 1.0);
+    vec3 background_col_2 = vec3(1.0, 0.949, 0.0);
+    vec3 background_col_3 = vec3(0.0, 0.0314, 1.0);
 
     vec3 background_col = mix(background_col_2, background_col_3, .5+cos(u_time/2.0)*.5);
 
@@ -255,7 +254,7 @@ vec3 rot_axis = vec3(0., 1., 0.);
     } else {
         vec3 point_on_surface = camera_center + dist_to_scene * rd;
         vec3 normal = get_normal(point_on_surface);
-        //obj_col = normal;
+        obj_col = normal;
 
         vec3 refl = normalize(reflect(rd, normal));
         float d = ray_march(point_on_surface + 0.2*refl, refl);
@@ -276,7 +275,7 @@ vec3 rot_axis = vec3(0., 1., 0.);
     } else {
         vec3 ref_on_surf = point_on_surface + d * refl;
         vec3 ref_norm = get_normal(ref_on_surf);
-        //obj_col = normal2;
+        obj_col = ref_norm;
 
         vec3 refl_light = reflect(rel_light_source_pos, normal);
 
