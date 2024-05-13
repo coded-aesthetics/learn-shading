@@ -8,7 +8,7 @@ float sdSphere(vec3 p, vec3 center, float radius) {
 }
 
 const float MAX_TRAVEL_DIST = 24.0;
-const float MAX_ITERATIONS = 48.0;
+const float MAX_ITERATIONS = 32.0;
 const float MIN_DIST_TO_OBJ = 0.01;
 
 float sdBoxFrame( vec3 p, vec3 b, float e )
@@ -167,7 +167,7 @@ float map(vec3 p) {
   vec3 initial_pos_2 = vec3(6., 1., 6.);
 
   for (int i = 0; i < num_walls; i++) {
-    float cur_angle = 2.0 * PI * float(i) / float(num_walls);
+    float cur_angle = 2.0 * PI * float(i) / float(num_walls)+u_time;
     vec3 cur_pos = rotate_vertex_position(initial_pos_2,rot_axis, cur_angle) + sin(u_time +  cur_angle) * vec3(0.0, 1.0, 0.0);
     //m = min(m, sdBox(p-cur_pos, vec3(1.5, 1.9, 1.15)));
 
@@ -175,7 +175,7 @@ float map(vec3 p) {
     axis_x = rotate_vertex_position(axis_x, rot_axis, -cur_angle+PI/4.0);
     vec3 rotatedP = rotate_vertex_position(p - cur_pos, rot_axis, -cur_angle+PI/4.0);
     rotatedP = rotate_vertex_position(rotatedP, axis_x,  .0);
-    m = min(m, sdBox(rotatedP, vec3(.1, 19., 3.)));
+    m = min(m, sdBox(rotatedP/*+ rot_axis*17.*cos(cur_angl)e*/, vec3(.1, 19., 3.)));
   }
   // END STONEHENGE
 
@@ -227,10 +227,14 @@ float specular(vec3 rel_light_source_pos, vec3 rel_camera_pos, vec3 normal) {
 void main() {
     vec2 uv = (2.0 * gl_FragCoord.xy - u_resolution) / u_resolution.x;
 vec3 rot_axis = vec3(0., 1., 0.);
-    vec3 camera_center = vec3(0.0, 0.0, -4.0);
-    camera_center = rotate_vertex_position(camera_center, rot_axis, u_time/2.0);
-    vec3 cur_point_on_cam_plane = vec3(uv, -3.0);
-    cur_point_on_cam_plane = rotate_vertex_position(cur_point_on_cam_plane, rot_axis, u_time/2.0);
+vec3 rot_axis_2 = vec3(1., 0., 0.);
+    vec3 camera_center = vec3(0.0, 0.0, -5.0);
+    //camera_center = rotate_vertex_position(camera_center, rot_axis, u_time/2.0);
+    float ang = (0.5 * sin(u_time/2.0) + 0.5) * PI;
+    camera_center = rotate_vertex_position(camera_center, rot_axis_2, ang);
+    vec3 cur_point_on_cam_plane = vec3(uv, -4.0);
+    //cur_point_on_cam_plane = rotate_vertex_position(cur_point_on_cam_plane, rot_axis, u_time/2.0);
+    cur_point_on_cam_plane = rotate_vertex_position(cur_point_on_cam_plane, rot_axis_2, ang);
     vec3 rd = normalize(cur_point_on_cam_plane - camera_center);
 
 
@@ -246,7 +250,7 @@ vec3 rot_axis = vec3(0., 1., 0.);
 
     vec3 background_col = mix(background_col_2, background_col_3, .5+cos(u_time/2.0)*.5);
 
-    vec3 color = vec3(0);
+    vec3 color = vec3(1.0);
 
     if (dist_to_scene > MAX_TRAVEL_DIST) {
         gl_FragColor = vec4(background_col, 1.0);

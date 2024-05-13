@@ -230,9 +230,9 @@ void main() {
     vec2 uv = (2.0 * gl_FragCoord.xy - u_resolution) / u_resolution.x;
 vec3 rot_axis = vec3(0., 1., 0.);
     vec3 camera_center = vec3(0.0, 12.0, 0.0);
-    //camera_center = rotate_vertex_position(camera_center, rot_axis, u_time/2.0);
+    camera_center = rotate_vertex_position(camera_center, rot_axis, u_time/2.0);
     vec3 cur_point_on_cam_plane = vec3(uv.x, 10.0, uv.y);
-    //cur_point_on_cam_plane = rotate_vertex_position(cur_point_on_cam_plane, rot_axis, u_time/2.0);
+    cur_point_on_cam_plane = rotate_vertex_position(cur_point_on_cam_plane, rot_axis, u_time/2.0);
     vec3 rd = normalize(cur_point_on_cam_plane - camera_center);
 
 
